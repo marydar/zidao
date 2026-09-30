@@ -1,0 +1,41 @@
+{
+  "name": "hanzi-practice",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Hanzi handwriting practice platform with adaptive review, stroke hints and progress tracking",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --pretty false",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "data:import": "node scripts/import-vocabulary.mjs",
+    "data:strokes": "node scripts/build-stroke-bundle.mjs",
+    "data:strokes:common": "node scripts/build-stroke-bundle.mjs common"
+  },
+  "dependencies": {
+    "idb": "^8.0.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.18.4",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.37.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.5.0",
+    "hanzi-writer-data": "^2.0.1",
+    "jsdom": "^29.1.1",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.43.0",
+    "vite": "^7.1.7",
+    "vitest": "^3.2.4"
+  }
+}
