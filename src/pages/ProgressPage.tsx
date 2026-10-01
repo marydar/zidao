@@ -12,10 +12,11 @@ import {
 } from 'recharts';
 import { ActivityGrid } from '../components/progress/ActivityGrid';
 import { EmptyState } from '../components/ui/Controls';
-import { IconAward, IconClock, IconTarget, IconTrending } from '../components/ui/Icon';
+import { IconAward, IconClock, IconTarget, IconTrash, IconTrending } from '../components/ui/Icon';
 import { useDayStats, useRecentSessions, useWordStats } from '../hooks/useProgress';
 import { dayKey, formatDayLong, formatDuration } from '../lib/date';
 import { buildDaySeries, computeOverall, difficultyRows } from '../services/progress/stats';
+import { progressRepo } from '../services/storage/progressRepository';
 import { getWordsByText } from '../services/vocabulary/vocabularyService';
 import type { WordEntry } from '../types';
 
@@ -38,6 +39,14 @@ export function ProgressPage() {
   const rows = useMemo(() => difficultyRows(wordStats).slice(0, 14), [wordStats]);
 
   const [meanings, setMeanings] = useState<Map<string, WordEntry>>(new Map());
+  const [clearArmed, setClearArmed] = useState(false);
+  const [clearDone, setClearDone] = useState(false);
+
+  const clearHistory = async () => {
+    await progressRepo.resetProgress();
+    setClearArmed(false);
+    setClearDone(true);
+  };
   useEffect(() => {
     if (!rows.length) return;
     let alive = true;
@@ -65,6 +74,30 @@ export function ProgressPage() {
         <div>
           <h1>Progress</h1>
           <p>Everything the app has learned about your handwriting.</p>
+        </div>
+        <div>
+          {clearDone ? (
+            <div className="notice" role="status">
+              <span>History cleared. Starting fresh.</span>
+            </div>
+          ) : clearArmed ? (
+            <div className="row gap-2 wrap">
+              <span className="small" style={{ color: 'var(--bad)' }}>
+                Delete all attempts, stats and session history?
+              </span>
+              <button className="btn btn-sm btn-danger" onClick={() => void clearHistory()}>
+                Yes, erase everything
+              </button>
+              <button className="btn btn-sm btn-ghost" onClick={() => setClearArmed(false)}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn-sm btn-danger" onClick={() => setClearArmed(true)}>
+              <IconTrash size={14} />
+              Clear history
+            </button>
+          )}
         </div>
       </div>
 

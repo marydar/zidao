@@ -20,7 +20,7 @@ import {
 import { useHotkeys } from '../hooks/useHotkeys';
 import { usePracticeSession } from '../hooks/usePracticeSession';
 import { formatClock } from '../lib/date';
-import { suggestSimilar, type CharCandidate } from '../services/handwriting/suggestions';
+import { prefetchHcr, recognizeHandwriting, type CharCandidate } from '../services/handwriting/hcr';
 import { loadStrokeData } from '../services/handwriting/strokeDataSource';
 import { weakReviewSelection } from '../services/vocabulary/queue';
 import { useSettings } from '../store/SettingsContext';
@@ -33,6 +33,9 @@ const MODE_LABEL: Record<string, string> = {
   weak: 'Weak words first',
 };
 
+/** Pause after the last stroke before dictation suggests automatically. */
+const AUTO_SUGGEST_DEBOUNCE_MS = 700;
+
 export function SessionPage() {
   const { settings } = useSettings();
   const navigate = useNavigate();
@@ -40,6 +43,7 @@ export function SessionPage() {
   const dictation = quiz === 'dictation';
 
   const canvasRef = useRef<CanvasHandle>(null);
+  const autoSuggestTimer = useRef<number | null>(null);
   const [charData, setCharData] = useState<StrokeData | null>(null);
   const [strokeCount, setStrokeCount] = useState(0);
   const [checking, setChecking] = useState(false);
@@ -92,7 +96,23 @@ export function SessionPage() {
   useEffect(() => {
     setSuggestions(null);
     setReadNotice(null);
+    if (autoSuggestTimer.current !== null) {
+      window.clearTimeout(autoSuggestTimer.current);
+      autoSuggestTimer.current = null;
+    }
   }, [charKey]);
+
+  /* ---- dictation: warm the recognizer so the first suggest is fast ---- */
+  useEffect(() => {
+    if (dictation && state.status === 'active') prefetchHcr();
+  }, [dictation, state.status]);
+
+  useEffect(
+    () => () => {
+      if (autoSuggestTimer.current !== null) window.clearTimeout(autoSuggestTimer.current);
+    },
+    [],
+  );
 
   /* ---- guide playback: once per explicit hint or first auto-hint per char ---- */
   const hintMode = settings.handwriting.hintMode;
@@ -143,12 +163,6 @@ export function SessionPage() {
     void actions.check(strokes).finally(() => setChecking(false));
   };
 
-  const onStrokeChange = (n: number) => {
-    setStrokeCount(n);
-    if (suggestions) setSuggestions(null);
-    if (readNotice) setReadNotice(null);
-  };
-
   /** Surface zi similar to what was drawn; the user picks the one they meant. */
   const onSuggest = async () => {
     if (locked || suggesting || !currentChar) return;
@@ -162,9 +176,13 @@ export function SessionPage() {
     setReadNotice(null);
     try {
       const context = [...new Set(state.queue.flatMap((w) => [...w.word]))];
-      const result = await suggestSimilar(strokes, currentChar, context);
+      const result = await recognizeHandwriting(strokes, { context, expected: currentChar });
       if (!result.suggestions.length) {
-        setReadNotice('No similar characters found — adjust your drawing and try again.');
+        setReadNotice(
+          result.reason === 'tiny'
+            ? 'That mark is too small — draw the full character.'
+            : 'No similar characters found — adjust your drawing and try again.',
+        );
       } else {
         setSuggestions(result.suggestions);
       }
@@ -173,6 +191,26 @@ export function SessionPage() {
     } finally {
       setSuggesting(false);
     }
+  };
+
+  /* Debounced auto-suggest: fire with the latest closure, not the one that
+     scheduled the timer. */
+  const onSuggestRef = useRef(onSuggest);
+  onSuggestRef.current = onSuggest;
+
+  const onStrokeChange = (n: number) => {
+    setStrokeCount(n);
+    if (suggestions) setSuggestions(null);
+    if (readNotice) setReadNotice(null);
+    if (autoSuggestTimer.current !== null) {
+      window.clearTimeout(autoSuggestTimer.current);
+      autoSuggestTimer.current = null;
+    }
+    if (!dictation || locked || n === 0) return;
+    autoSuggestTimer.current = window.setTimeout(() => {
+      autoSuggestTimer.current = null;
+      void onSuggestRef.current();
+    }, AUTO_SUGGEST_DEBOUNCE_MS);
   };
 
   /** The user picked the zi they meant (null = reveal the answer); judge it. */

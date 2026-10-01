@@ -84,6 +84,27 @@ describe('app smoke', () => {
     ).toBe(true);
   });
 
+  it('clears history from the progress page', async () => {
+    const el = await renderAt('/progress');
+    expect(await settle(() => el.textContent?.includes('Clear history') ?? false)).toBe(true);
+
+    await act(async () => {
+      [...el.querySelectorAll('button')]
+        .find((b) => b.textContent?.includes('Clear history'))
+        ?.click();
+    });
+    expect(el.textContent).toContain('Delete all attempts, stats and session history?');
+
+    await act(async () => {
+      [...el.querySelectorAll('button')]
+        .find((b) => b.textContent?.includes('Yes, erase everything'))
+        ?.click();
+    });
+    expect(
+      await settle(() => el.textContent?.includes('History cleared. Starting fresh.') ?? false),
+    ).toBe(true);
+  });
+
   it('renders settings with handwriting controls', async () => {
     const el = await renderAt('/settings');
     expect(await settle(() => el.textContent?.includes('Strictness') ?? false)).toBe(true);
