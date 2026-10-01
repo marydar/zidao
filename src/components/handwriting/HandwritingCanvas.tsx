@@ -51,8 +51,8 @@ function paletteFor(theme: 'dark' | 'light'): Palette {
         gridFaint: 'rgba(140, 216, 216, 0.1)',
         ink: '#e7f3f2',
         inkDisabled: 'rgba(231, 243, 242, 0.75)',
-        ghost: 'rgba(45, 212, 191, 0.13)',
-        hint: 'rgba(45, 212, 191, 0.8)',
+        ghost: 'rgba(34, 211, 238, 0.13)',
+        hint: 'rgba(34, 211, 238, 0.8)',
         guide: 'rgba(34, 211, 238, 0.85)',
       }
     : {
@@ -60,8 +60,8 @@ function paletteFor(theme: 'dark' | 'light'): Palette {
         gridFaint: 'rgba(8, 61, 64, 0.12)',
         ink: '#0a2325',
         inkDisabled: 'rgba(10, 35, 37, 0.7)',
-        ghost: 'rgba(13, 148, 136, 0.14)',
-        hint: 'rgba(13, 148, 136, 0.85)',
+        ghost: 'rgba(8, 145, 178, 0.14)',
+        hint: 'rgba(8, 145, 178, 0.85)',
         guide: 'rgba(8, 145, 178, 0.85)',
       };
 }

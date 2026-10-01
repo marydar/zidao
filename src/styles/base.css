@@ -36,7 +36,7 @@ body::before {
   inset: 0 0 auto;
   height: 420px;
   background:
-    radial-gradient(60% 100% at 50% -30%, rgba(45, 212, 191, 0.09), transparent 70%),
+    radial-gradient(60% 100% at 50% -30%, rgba(34, 211, 238, 0.09), transparent 70%),
     radial-gradient(40% 80% at 85% -20%, rgba(34, 211, 238, 0.06), transparent 70%);
   pointer-events: none;
   z-index: 0;
@@ -44,7 +44,7 @@ body::before {
 
 [data-theme='light'] body::before {
   background:
-    radial-gradient(60% 100% at 50% -30%, rgba(13, 148, 136, 0.08), transparent 70%),
+    radial-gradient(60% 100% at 50% -30%, rgba(8, 145, 178, 0.08), transparent 70%),
     radial-gradient(40% 80% at 85% -20%, rgba(8, 145, 178, 0.06), transparent 70%);
 }
 
@@ -89,7 +89,7 @@ button {
 }
 
 ::selection {
-  background: rgba(45, 212, 191, 0.28);
+  background: rgba(34, 211, 238, 0.28);
 }
 
 :focus-visible {
@@ -353,7 +353,7 @@ button {
 
 .icon-btn.active {
   color: var(--accent);
-  border-color: rgba(45, 212, 191, 0.4);
+  border-color: rgba(34, 211, 238, 0.4);
   background: var(--accent-soft);
 }
 
@@ -391,8 +391,8 @@ button {
 .input:focus,
 .select:focus {
   outline: none;
-  border-color: rgba(45, 212, 191, 0.55);
-  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.14);
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.14);
 }
 
 .select {
@@ -536,7 +536,7 @@ button.chip:hover {
 
 .chip.on {
   background: var(--accent-soft);
-  border-color: rgba(45, 212, 191, 0.4);
+  border-color: rgba(34, 211, 238, 0.4);
   color: var(--accent);
 }
 
